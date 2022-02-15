@@ -1,13 +1,15 @@
 import React from "react";
+import "./css/bootstrap.css";
+import "./css/App.css";
+import "./css/main.css";
 import TopMenu from "./components/TopMenu";
-import './css/bootstrap.css'
-import './css/App.css';
-import './css/main.css'
+import ChoroplethMap from "./components/mapView/ChoroplethMap";
 
 function App() {
   return (
     <div className="App">
-      <TopMenu/>  
+      <TopMenu />
+      <ChoroplethMap />
     </div>
   );
 }
