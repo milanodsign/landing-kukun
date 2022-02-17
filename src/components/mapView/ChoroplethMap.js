@@ -3,28 +3,36 @@ import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import statesData from "../../lib/dataStates";
 import Legend from "./Legend";
+import InfoCoste from "./InfoCoste";
 
-const ChoroplethMap = () => {
+const ChoroplethMap = ({ dataContStates, setDataContStates }) => {
   const mapURL =
-    "https://api.mapbox.com/styles/v1/lmilano85/ckznnla6o001d14rzxl8enp90.html?title=view&access_token=pk.eyJ1IjoibG1pbGFubzg1IiwiYSI6ImNrem16cjhpazF4dzMyb3M4YWRrcHpkeTkifQ.k4gzZiLKpptR6sX3vgONog&zoomwheel=true&fresh=true#12/48.8665/2.3176";
+    "https://api.mapbox.com/styles/v1/lmilano85/ckznnla6o001d14rzxl8enp90.html?title=view&access_token=pk.eyJ1IjoibG1pbGFubzg1IiwiYSI6ImNrem16cXRjNzI4eXYydXFyZXJvbXQydWkifQ.a1yeVqfop_j_ZbnOXM6WPg";
 
   const highlightFeature = (e) => {
-    var layer = e.target;
+    
+    let layer = e.target; 
+
+    layer.setStyle({
+      weight: 1,
+      fillOpacity: 0.7,
+    });
+    
+    setDataContStates(layer.feature.properties);
 
     layer.setStyle({
       weight: 3,
       color: "#666",
-      fillOpacity: 0.7,
+      fillOpacity: 0.5,
     });
+  };
 
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-      layer.bringToFront();
-    }
-  }
-
-  const zoomToFeature = (e, feature) => {
-    // fitBounds(e.target.getBounds());
-    console.log(feature)
+  const openGeolocationApp = (e) => {
+    let layer = e.target;
+    setDataContStates(layer.feature.properties);
+    window.location.href =
+      "https://app.mykukun.com/estimator/kitchen-renovation-cost/" +
+      layer.feature.properties.name.replace(/\s+/g, "-");
   };
 
   const resetHighlight = (e) => {
@@ -32,18 +40,15 @@ const ChoroplethMap = () => {
     layer.setStyle({
       weight: 2,
       color: "#fff",
-      fillOpacity: 0.7,
+      fillOpacity: 1,
     });
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-      layer.bringToFront();
-    }
-  }
+  };
 
   const onEachFeature = (feature, layer) => {
     layer.on({
       mouseover: highlightFeature,
       mouseout: resetHighlight,
-      click: zoomToFeature,
+      click: openGeolocationApp,
     });
   };
 
@@ -53,12 +58,12 @@ const ChoroplethMap = () => {
       opacity: 1,
       color: "white",
       dashArray: "3",
-      fillOpacity: 0.7,
-      fillColor: getColor(feature.properties.density),
+      fillOpacity: 1,
+      fillColor: colorStates(feature.properties.coste),
     };
   };
 
-  const getColor = (d) => {
+  const colorStates = (d) => {
     return d > 1000
       ? "#EB2313"
       : d > 500
@@ -76,18 +81,23 @@ const ChoroplethMap = () => {
       : "#FFEDA0";
   };
   return (
-    <div className="container containerMap">
-      <MapContainer center={[37.8, -96]} zoom={4.2}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url={mapURL}
-        />
-        <GeoJSON
-          data={statesData}
-          style={style}
-          onEachFeature={onEachFeature}
-        />
-      </MapContainer>
+    <div className="container bodyContent">
+      <h2>Estimated Cost of Kitchen Remodeling by State</h2>
+      <div className="container containerMap">
+        <MapContainer center={[37.8, -96]} zoom={4.2}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url={mapURL}
+          />
+          <GeoJSON
+            data={statesData}
+            style={style}
+            onEachFeature={onEachFeature}
+          />
+          <Legend />
+          <InfoCoste dataContStates={dataContStates} />
+        </MapContainer>
+      </div>
     </div>
   );
 };
